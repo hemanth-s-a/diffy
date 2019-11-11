@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import ai.diffy.analysis._
 import ai.diffy.lifter.Message
+import ai.diffy.proxy.ResponseMode._
 import com.google.inject.Provides
 import com.twitter.finagle._
 import com.twitter.finagle.tracing.Trace
@@ -99,7 +100,17 @@ trait DifferenceProxy {
       } respond { _ => outstandingRequests.decrementAndGet }
 
 //      rawResponses map { _(0)._1} flatMap { Future.const }
-      NoResponseExceptionFuture
+//      NoResponseExceptionFuture
+
+      def pickRawResponse(pos: Int) =
+        rawResponses flatMap { reps => Future.const(reps(pos)._1) }
+
+      settings.responseMode match {
+        case EmptyResponse => NoResponseExceptionFuture
+        case FromPrimary   => pickRawResponse(0)
+        case FromCandidate => pickRawResponse(1)
+        case FromSecondary => pickRawResponse(2)
+      }
     }
   }
 

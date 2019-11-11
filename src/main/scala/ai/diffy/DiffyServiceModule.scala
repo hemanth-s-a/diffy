@@ -4,6 +4,8 @@ import java.net.InetSocketAddress
 
 import ai.diffy.analysis.{InMemoryDifferenceCollector, InMemoryDifferenceCounter, NoiseDifferenceCounter, RawDifferenceCounter}
 import ai.diffy.proxy.Settings
+import ai.diffy.proxy.ResponseMode
+import ai.diffy.proxy.ResponseMode._
 import ai.diffy.util.ResourceMatcher
 import com.google.inject.Provides
 import com.twitter.inject.TwitterModule
@@ -65,6 +67,9 @@ object DiffyServiceModule extends TwitterModule {
   val allowHttpSideEffects =
     flag[Boolean]("allowHttpSideEffects", false, "Ignore POST, PUT, and DELETE requests if set to false")
 
+  val responseMode =
+    flag[ResponseMode]("responseMode", EmptyResponse, "Respond with 'empty' response, or response from 'primary', 'secondary' or 'candidate'")
+
   val excludeHttpHeadersComparison =
     flag[Boolean]("excludeHttpHeadersComparison", false, "Exclude comparison on HTTP headers if set to false")
 
@@ -102,6 +107,7 @@ object DiffyServiceModule extends TwitterModule {
       Duration.fromMinutes(emailDelay()),
       rootUrl(),
       allowHttpSideEffects(),
+      responseMode(),
       excludeHttpHeadersComparison(),
       skipEmailsWhenNoErrors(),
       httpsPort(),
