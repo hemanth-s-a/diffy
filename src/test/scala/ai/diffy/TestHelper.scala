@@ -28,6 +28,7 @@ object TestHelper extends MockitoSugar {
     emailDelay = Duration.fromSeconds(0),
     rootUrl = "test",
     allowHttpSideEffects = true,
+    responseMode = EmptyResponse,
     excludeHttpHeadersComparison = true,
     skipEmailsWhenNoErrors = false,
     httpsPort = "443",
