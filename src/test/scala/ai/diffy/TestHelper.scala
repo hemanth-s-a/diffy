@@ -5,6 +5,7 @@ import java.net.InetSocketAddress
 import ai.diffy.analysis._
 import ai.diffy.compare.Difference
 import ai.diffy.proxy._
+import ai.diffy.proxy.ResponseMode.EmptyResponse
 import com.twitter.util.Duration
 import org.scalatest.mock.MockitoSugar
 

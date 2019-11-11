@@ -87,20 +87,23 @@ trait DifferenceProxy {
           case Throw(t) => log.debug(t, "error lifting")
         }
 
-      responses foreach  {
+      responses flatMap  {
         case Seq(primaryResponse, candidateResponse, secondaryResponse) =>
           liftRequest(req) respond {
             case Return(m) =>
               log.debug(s"success lifting request for ${m.endpoint}")
 
             case Throw(t) => log.debug(t, "error lifting request")
-          } foreach { req =>
+          } map { req =>
             analyzer(req, candidateResponse, primaryResponse, secondaryResponse)
           }
-      }
-      
+      } respond { _ => outstandingRequests.decrementAndGet }
+
+//      rawResponses map { _(0)._1} flatMap { Future.const }
+//      NoResponseExceptionFuture
+
       def pickRawResponse(pos: Int) =
-        rawResponses flatMap { reps => Future.const(reps(pos)) }
+        rawResponses flatMap { reps => Future.const(reps(pos)._1) }
 
       settings.responseMode match {
         case EmptyResponse => NoResponseExceptionFuture
